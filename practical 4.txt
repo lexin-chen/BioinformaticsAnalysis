@@ -1,0 +1,93 @@
+lab 10
+
+grep  XP_001640902.1 ~/refseq/invertebrate/GCF_000209225.1/GCF_000209225.1_ASM20922v1_genomic.gff
+# look at scaffold and location 
+
+makeblastdb -in ~/refseq/invertebrate/GCF_000209225.1/GCF_000209225.1_ASM20922v1_genomic.fna -parse_seqids -dbtype nucl
+#creating blast database from nucleotide sequence
+
+tblastn -db ~/refseq/invertebrate/GCF_000209225.1/GCF_000209225.1_ASM20922v1_genomic.fna -query ~/lab5/XP_020903999.1.fa -outfmt "6 sseqid sstart send qstart qend evalue bitscore length stitle"  -out ~/lab10/tblastn.XP_020903999query.nemdb.detail.out
+
+grep "NEMVEscaffold_6 g" tblastn.XP_020903999query.nemdb.detail.out | less -S
+sseqid (sequence id) sstart (start of alignment in subject) send (end of alignment in subject) qstart (start of alignmnet in query) qend (end of alignment in query) evalue bitscore length stitle
+
+Important hints for tblastn:
+-subject coordinates are in bp (nucleotides)
+-query coordinates are in amino acids
+-length is in amino acids
+
+grep "NEMVEscaffold_6 g" tblastn.XP_020903999query.nemdb.detail.out | head -n 1 | awk 'BEGIN { FS = "\t" } ;  {print $1 "\t"$3"\t"$2}' > tblastn.XP_020903999query.nemdb.detail2.rev.out
+#reverse the order of the subject coordinates-> bedfile
+
+bedtools getfasta -fi  ~/refseq/invertebrate/GCF_000209225.1/GCF_000209225.1_ASM20922v1_genomic.fna -bed tblastn.XP_020903999query.nemdb.detail2.rev.out -fo hitsca6.fa
+#extract sequence that matches the query according to tblastn from scaffold
+
+transeq -sequence hitsca6.fa -frame R -outseq hitsca6.aa.fa
+#translate the sequence extracted which frame should it be check for frame with no stop codon
+
+transeq -sequence hitsca6.fa -frame -3 -outseq hitsca6.aa.fa
+for frame -3 remember to less for which one
+
+# this is sequence of E.pallida you should compare it to N.vectensis model
+
+####
+Interproscan
+#make sure to use large instance when doing the domain stuff.
+ ~/my_interproscan/interproscan-5.36-75.0/interproscan.sh -appl Pfam -i ~/lab5/allhomologs.fa -f TSV,GFF3,HTML,SVG  -goterms -iprlookup
+#Run interproscan
+
+grep XP_001630613  allhomologs.fa.tsv |less -S
+#pull out the anootations for one protein
+
+cut -f 1 allhomologs.fa.tsv  | sort | uniq -c
+to compare the number of annotations among proteins
+
+look inside for details
+
+
+
+
+===
+lab 11
+
+fastq-dump SRR1297281
+#control replicate
+
+less SRR1297281.fastq
+
+#A FASTQ file normally uses four lines per sequence.
+
+#Line 1 begins with a '@' character and is followed by a sequence identifier and an optional description (like a FASTA title line).
+#Line 2 is the raw sequence letters.
+#Line 3 begins with a '+' character and is optionally followed by the same sequence identifier (and any description) again.
+#Line 4 encodes the quality values for the sequence in Line 2, and must contain the same number of symbols as letters in the sequence.
+
+
+https://support.illumina.com/help/BaseSpace_OLH_009008/Content/Source/Informatics/BS/QualityScoreEncoding_swBS.htm
+# to check q-score of the sequence
+
+hisat2 -q SRR1297272.fastq -S SRR1297272.sam -x nemat_genome_index
+hisat2 -q SRR1297281.fastq -S SRR1297281.sam -x nemat_genome_index
+#map reads to the genome
+
+====
+lab 12
+#create fastafile for seqs
+R
+#should start with > 
+> library(phangorn)
+> mySeqs <- read.FASTA("input.fasta")
+> mySeqs
+> myDist <- dist.dna(mySeqs,model="RAW")
+#this is raw number of difference
+>myDistR <-myDist * 15 (number of nucleotides in seq)
+#convert this to raw # of difference and multiply distance matrix by N
+
+> myTree <- upgma(myDistR)
+> pdf("myTree.pdf")
+> plot(myTree)
+> edgelabels(myTree$edge.length)
+> dev.off()
+
+>q()
+#to quit R
