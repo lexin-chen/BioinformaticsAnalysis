@@ -1,4 +1,4 @@
-lab 10
+# lab 10
 
 grep  XP_001640902.1 ~/refseq/invertebrate/GCF_000209225.1/GCF_000209225.1_ASM20922v1_genomic.gff
 # look at scaffold and location 
