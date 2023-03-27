@@ -4,12 +4,12 @@ grep  XP_001640902.1 ~/refseq/invertebrate/GCF_000209225.1/GCF_000209225.1_ASM20
 # look at scaffold and location 
 
 makeblastdb -in ~/refseq/invertebrate/GCF_000209225.1/GCF_000209225.1_ASM20922v1_genomic.fna -parse_seqids -dbtype nucl
-#creating blast database from nucleotide sequence
+# creating blast database from nucleotide sequence
 
 tblastn -db ~/refseq/invertebrate/GCF_000209225.1/GCF_000209225.1_ASM20922v1_genomic.fna -query ~/lab5/XP_020903999.1.fa -outfmt "6 sseqid sstart send qstart qend evalue bitscore length stitle"  -out ~/lab10/tblastn.XP_020903999query.nemdb.detail.out
 
 grep "NEMVEscaffold_6 g" tblastn.XP_020903999query.nemdb.detail.out | less -S
-sseqid (sequence id) sstart (start of alignment in subject) send (end of alignment in subject) qstart (start of alignmnet in query) qend (end of alignment in query) evalue bitscore length stitle
+#sseqid (sequence id) sstart (start of alignment in subject) send (end of alignment in subject) qstart (start of alignmnet in query) qend (end of alignment in query) evalue bitscore length stitle
 
 Important hints for tblastn:
 -subject coordinates are in bp (nucleotides)
@@ -17,22 +17,22 @@ Important hints for tblastn:
 -length is in amino acids
 
 grep "NEMVEscaffold_6 g" tblastn.XP_020903999query.nemdb.detail.out | head -n 1 | awk 'BEGIN { FS = "\t" } ;  {print $1 "\t"$3"\t"$2}' > tblastn.XP_020903999query.nemdb.detail2.rev.out
-#reverse the order of the subject coordinates-> bedfile
+# reverse the order of the subject coordinates-> bedfile
 
 bedtools getfasta -fi  ~/refseq/invertebrate/GCF_000209225.1/GCF_000209225.1_ASM20922v1_genomic.fna -bed tblastn.XP_020903999query.nemdb.detail2.rev.out -fo hitsca6.fa
-#extract sequence that matches the query according to tblastn from scaffold
+# extract sequence that matches the query according to tblastn from scaffold
 
 transeq -sequence hitsca6.fa -frame R -outseq hitsca6.aa.fa
 #translate the sequence extracted which frame should it be check for frame with no stop codon
 
 transeq -sequence hitsca6.fa -frame -3 -outseq hitsca6.aa.fa
-for frame -3 remember to less for which one
+#for frame -3 remember to less for which one
 
 # this is sequence of E.pallida you should compare it to N.vectensis model
 
 ####
-Interproscan
-#make sure to use large instance when doing the domain stuff.
+# Interproscan
+# make sure to use large instance when doing the domain stuff.
  ~/my_interproscan/interproscan-5.36-75.0/interproscan.sh -appl Pfam -i ~/lab5/allhomologs.fa -f TSV,GFF3,HTML,SVG  -goterms -iprlookup
 #Run interproscan
 
